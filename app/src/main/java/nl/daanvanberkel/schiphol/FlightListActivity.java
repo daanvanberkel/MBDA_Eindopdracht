@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,17 +22,23 @@ public class FlightListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_flight_list);
 
         viewModel = new ViewModelProvider.AndroidViewModelFactory(getApplication()).create(FlightListViewModel.class);
+        viewModel.refreshFlights();
 
-        setupRecyclerView();
-    }
-
-    private void setupRecyclerView() {
         final FlightAdapter adapter = new FlightAdapter();
+
+        final SwipeRefreshLayout swipeContainer = findViewById(R.id.swipe_container);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                viewModel.refreshFlights();
+            }
+        });
 
         viewModel.getFlights().observe(this, new Observer<PagedList<Flight>>() {
             @Override
             public void onChanged(PagedList<Flight> flights) {
                 adapter.submitList(flights);
+                swipeContainer.setRefreshing(false);
             }
         });
 

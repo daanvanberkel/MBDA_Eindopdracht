@@ -11,11 +11,22 @@ import androidx.paging.PagedList;
 public class FlightListViewModel extends AndroidViewModel {
 
     private LiveData<PagedList<Flight>> flights;
+    private FlightDataSourceFactory factory;
 
     public FlightListViewModel(@NonNull Application application) {
         super(application);
 
-        FlightDataSourceFactory factory = new FlightDataSourceFactory(getApplication().getApplicationContext());
+        factory = new FlightDataSourceFactory(getApplication().getApplicationContext());
+    }
+
+    public LiveData<PagedList<Flight>> getFlights() {
+        return flights;
+    }
+
+    public void refreshFlights() {
+        if (factory.flightLiveData.getValue() != null) {
+            factory.flightLiveData.getValue().invalidate();
+        }
 
         PagedList.Config pagedListConfig = (new PagedList.Config.Builder())
                 .setEnablePlaceholders(true)
@@ -25,9 +36,5 @@ public class FlightListViewModel extends AndroidViewModel {
 
         flights = new LivePagedListBuilder<>(factory, pagedListConfig)
                 .build();
-    }
-
-    public LiveData<PagedList<Flight>> getFlights() {
-        return flights;
     }
 }
