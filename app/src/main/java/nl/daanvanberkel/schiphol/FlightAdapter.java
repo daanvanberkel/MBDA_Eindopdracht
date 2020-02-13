@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
 
+import nl.daanvanberkel.schiphol.models.Flight;
+
 public class FlightAdapter extends PagedListAdapter<Flight, FlightAdapter.FlightViewHolder> {
 
     private OnItemClickListener listener;

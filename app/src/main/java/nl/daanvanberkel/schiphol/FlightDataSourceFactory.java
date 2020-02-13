@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.DataSource;
 
+import nl.daanvanberkel.schiphol.models.Flight;
+
 public class FlightDataSourceFactory extends DataSource.Factory<Integer, Flight> {
     private Context context;
 

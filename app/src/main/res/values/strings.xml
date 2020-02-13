@@ -6,4 +6,5 @@
     <string name="destination_label">Bestemming</string>
     <string name="state_label">Vluchtstatus</string>
     <string name="aircraft_label">Vliegtuig</string>
+    <string name="favorite_label">Favoriet</string>
 </resources>

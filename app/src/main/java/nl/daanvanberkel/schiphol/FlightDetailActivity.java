@@ -4,7 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.FrameLayout;
+
+import nl.daanvanberkel.schiphol.models.Flight;
 
 public class FlightDetailActivity extends AppCompatActivity {
 

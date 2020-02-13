@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import nl.daanvanberkel.schiphol.helpers.FlightParser;
+import nl.daanvanberkel.schiphol.models.Flight;
+
 public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
 
     private Context context;

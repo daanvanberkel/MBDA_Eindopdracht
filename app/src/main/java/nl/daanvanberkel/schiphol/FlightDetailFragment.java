@@ -2,6 +2,9 @@ package nl.daanvanberkel.schiphol;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -9,12 +12,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Locale;
+
+import nl.daanvanberkel.schiphol.models.Flight;
+import nl.daanvanberkel.schiphol.viewmodels.FlightDetailViewModel;
 
 public class FlightDetailFragment extends Fragment {
 
     public static final String ARG_FLIGHT = "nl.daanvanberkel.schiphol.ARG_FLIGHT";
+
+    private FlightDetailViewModel viewModel;
+    private Flight flight;
 
     public FlightDetailFragment() {
     }
@@ -22,9 +32,12 @@ public class FlightDetailFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Flight flight = (Flight) getArguments().getSerializable(ARG_FLIGHT);
-
         View view = inflater.inflate(R.layout.flight_detail_fragment, container, false);
+        setHasOptionsMenu(true);
+
+        viewModel = new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()).create(FlightDetailViewModel.class);
+
+        flight = (Flight) getArguments().getSerializable(ARG_FLIGHT);
 
         if (flight == null) {
             return view;
@@ -47,5 +60,33 @@ public class FlightDetailFragment extends Fragment {
         flightAircraftView.setText(String.format("%s - %s", flight.getAircraftType().getIataMain(), flight.getAircraftType().getIataSub()));
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.detail_fragment_menu, menu);
+
+        MenuItem favoriteItem = menu.findItem(R.id.favorite_menu_item);
+
+        if (viewModel.hasFavoriteFlight(flight.getId())) {
+            favoriteItem.setIcon(R.drawable.ic_favorite);
+        }
+
+        favoriteItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (viewModel.hasFavoriteFlight(flight.getId())) {
+                    viewModel.removeFavoriteFlight(flight.getId());
+                    item.setIcon(R.drawable.ic_favorite_border);
+                } else {
+                    viewModel.addFavoriteFlight(flight.getId());
+                    item.setIcon(R.drawable.ic_favorite);
+                }
+
+                return true;
+            }
+        });
+
+        super.onCreateOptionsMenu(menu, inflater);
     }
 }

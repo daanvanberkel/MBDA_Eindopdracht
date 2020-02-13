@@ -1,4 +1,4 @@
-package nl.daanvanberkel.schiphol;
+package nl.daanvanberkel.schiphol.models;
 
 import java.io.Serializable;
 

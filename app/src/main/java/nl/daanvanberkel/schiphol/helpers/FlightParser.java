@@ -1,10 +1,12 @@
-package nl.daanvanberkel.schiphol;
+package nl.daanvanberkel.schiphol.helpers;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import nl.daanvanberkel.schiphol.models.Flight;
 
 public class FlightParser {
     private FlightParser() {

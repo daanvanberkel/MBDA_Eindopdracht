@@ -1,4 +1,4 @@
-package nl.daanvanberkel.schiphol;
+package nl.daanvanberkel.schiphol.viewmodels;
 
 import android.app.Application;
 
@@ -7,6 +7,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
+
+import nl.daanvanberkel.schiphol.models.Flight;
+import nl.daanvanberkel.schiphol.FlightDataSourceFactory;
 
 public class FlightListViewModel extends AndroidViewModel {
 

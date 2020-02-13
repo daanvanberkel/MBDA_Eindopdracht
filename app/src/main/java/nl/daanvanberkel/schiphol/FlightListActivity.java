@@ -11,6 +11,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.Intent;
 import android.os.Bundle;
 
+import nl.daanvanberkel.schiphol.models.Flight;
+import nl.daanvanberkel.schiphol.viewmodels.FlightListViewModel;
+
 
 public class FlightListActivity extends AppCompatActivity {
 
