@@ -153,7 +153,7 @@ public class FlightDetailFragment extends Fragment {
 
         MenuItem favoriteItem = menu.findItem(R.id.favorite_menu_item);
 
-        if (viewModel.hasFavoriteFlight(flight.getId())) {
+        if (viewModel.hasFavoriteFlight(flight)) {
             favoriteItem.setIcon(R.drawable.ic_favorite);
         }
 
@@ -161,13 +161,13 @@ public class FlightDetailFragment extends Fragment {
         favoriteItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (viewModel.hasFavoriteFlight(flight.getId())) {
-                    viewModel.removeFavoriteFlight(flight.getId());
+                if (viewModel.hasFavoriteFlight(flight)) {
+                    viewModel.removeFavoriteFlight(flight);
                     item.setIcon(R.drawable.ic_favorite_border);
 
                     Toast.makeText(getContext(), "Vlucht " + flight.getName() + " verwijderd als favoriet", Toast.LENGTH_SHORT).show();
                 } else {
-                    viewModel.addFavoriteFlight(flight.getId());
+                    viewModel.addFavoriteFlight(flight);
                     item.setIcon(R.drawable.ic_favorite);
 
                     Toast.makeText(getContext(), "Vlucht " + flight.getName() + " opgeslagen als favoriet", Toast.LENGTH_SHORT).show();

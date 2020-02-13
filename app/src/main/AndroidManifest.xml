@@ -3,6 +3,7 @@
     package="nl.daanvanberkel.schiphol">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -11,15 +12,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <receiver android:name=".receivers.OnBootBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".services.FavoriteFlightService"
+            android:label="Favorite Flights Service"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <activity android:name=".FlightDetailActivity"
             android:parentActivityName=".FlightListActivity"></activity>
-        <activity android:name=".FlightListActivity" android:launchMode="singleTop">
+
+        <activity android:name=".FlightListActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

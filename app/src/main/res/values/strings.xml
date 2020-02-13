@@ -10,4 +10,6 @@
     <string name="view_on_maps_label">Bekijk op kaart</string>
     <string name="codeshare_label">Vlucht ook bekent als</string>
     <string name="airline_label">Vliegmaatschappij</string>
+    <string name="channel_name">Shiphol</string>
+    <string name="channel_description">Schiphol informatie</string>
 </resources>

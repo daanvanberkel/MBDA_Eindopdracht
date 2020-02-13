@@ -6,21 +6,41 @@ import java.util.Collections;
 import java.util.List;
 
 public class FavoriteFlights implements Serializable {
-    private List<String> flightIds = new ArrayList<>();
+    private List<Flight> flights = new ArrayList<>();
 
-    public void addFlightId(String id) {
-        flightIds.add(id);
+    public void addFlight(Flight flight) {
+        if (hasFlight(flight)) {
+            return;
+        }
+
+        flights.add(flight);
     }
 
-    public void removeFlightId(String id) {
-        flightIds.remove(id);
+    public void removeFlight(Flight flight) {
+        Integer index = getFlightIndex(flight);
+
+        if (index == null) {
+            return;
+        }
+
+        flights.remove(index.intValue());
     }
 
-    public boolean hasFlightId(String id) {
-        return flightIds.contains(id);
+    public boolean hasFlight(Flight flight) {
+        return getFlightIndex(flight) != null;
     }
 
-    public List<String> getFlightIds() {
-        return Collections.unmodifiableList(flightIds);
+    public List<Flight> getFlights() {
+        return Collections.unmodifiableList(flights);
+    }
+
+    private Integer getFlightIndex(Flight flight) {
+        for(int i = 0; i < getFlights().size(); i++) {
+            if (getFlights().get(i).getId().equals(flight.getId())) {
+                return i;
+            }
+        }
+
+        return null;
     }
 }

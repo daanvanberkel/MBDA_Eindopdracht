@@ -22,16 +22,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import nl.daanvanberkel.schiphol.helpers.AircraftTypeParser;
 import nl.daanvanberkel.schiphol.helpers.AirlineParser;
 import nl.daanvanberkel.schiphol.helpers.DestinationParser;
-import nl.daanvanberkel.schiphol.helpers.FlightParser;
 import nl.daanvanberkel.schiphol.helpers.SchipholApiCredentials;
 import nl.daanvanberkel.schiphol.models.AircraftType;
 import nl.daanvanberkel.schiphol.models.Airline;
@@ -40,39 +37,39 @@ import nl.daanvanberkel.schiphol.models.FavoriteFlights;
 import nl.daanvanberkel.schiphol.models.Flight;
 
 public class FlightDetailViewModel extends AndroidViewModel {
-    private static final String FAVORITE_FLIGHTS_FILENAME = "favorite_flights";
+    public static final String FAVORITE_FLIGHTS_FILENAME = "favorite_flights";
 
     public FlightDetailViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public boolean hasFavoriteFlight(String id) {
-        return loadFavoriteFlights().hasFlightId(id);
+    public boolean hasFavoriteFlight(Flight flight) {
+        return loadFavoriteFlights().hasFlight(flight);
     }
 
-    public List<String> getFavoriteFlightIds() {
-        return loadFavoriteFlights().getFlightIds();
+    public List<Flight> getFavoriteFlights() {
+        return loadFavoriteFlights().getFlights();
     }
 
-    public void addFavoriteFlight(String id) {
+    public void addFavoriteFlight(Flight flight) {
         FavoriteFlights favoriteFlights = loadFavoriteFlights();
 
-        if (favoriteFlights.hasFlightId(id)) {
+        if (favoriteFlights.hasFlight(flight)) {
             return;
         }
 
-        favoriteFlights.addFlightId(id);
+        favoriteFlights.addFlight(flight);
         saveFavoriteFlights(favoriteFlights);
     }
 
-    public void removeFavoriteFlight(String id) {
+    public void removeFavoriteFlight(Flight flight) {
         FavoriteFlights favoriteFlights = loadFavoriteFlights();
 
-        if (!favoriteFlights.hasFlightId(id)) {
+        if (!favoriteFlights.hasFlight(flight)) {
             return;
         }
 
-        favoriteFlights.removeFlightId(id);
+        favoriteFlights.removeFlight(flight);
         saveFavoriteFlights(favoriteFlights);
     }
 
