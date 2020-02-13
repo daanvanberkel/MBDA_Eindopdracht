@@ -63,8 +63,14 @@
         android:id="@+id/flight_detail_destination"
         android:text="LAX"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/view_on_map_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:text="@string/view_on_maps_label" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -79,11 +85,26 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"/>
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/aircraft_label"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/aircraft_label"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <ImageView
+            android:id="@+id/aircraft_help_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="Help"
+            android:src="@drawable/ic_help"
+            android:layout_marginLeft="7dp"
+            android:layout_marginTop="3dp"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/flight_detail_aircraft"
@@ -91,4 +112,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/airline_label"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <TextView
+        android:id="@+id/flight_detail_airline"
+        android:text="KLM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/codeshare_label"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <TextView
+        android:id="@+id/flight_detail_codeshare"
+        android:text="UA200\nUA201"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </LinearLayout>

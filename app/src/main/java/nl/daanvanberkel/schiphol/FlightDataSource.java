@@ -1,6 +1,7 @@
 package nl.daanvanberkel.schiphol;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import nl.daanvanberkel.schiphol.helpers.FlightParser;
+import nl.daanvanberkel.schiphol.helpers.SchipholApiCredentials;
 import nl.daanvanberkel.schiphol.models.Flight;
 
 public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
@@ -61,8 +63,6 @@ public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
     }
 
     private void loadFlights(final int page, final LoadCallback<Integer, Flight> callback) {
-        VolleyLog.DEBUG = true;
-
         RequestQueue queue = Volley.newRequestQueue(context);
 
         Calendar currentTime = Calendar.getInstance();
@@ -100,16 +100,16 @@ public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                callback.onError(error);
+                Toast.makeText(context, "Vluchten kunnen niet worden weergegeven zonder internetverbinding", Toast.LENGTH_LONG).show();
             }
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
                 params.put("Accept", "application/json");
-                params.put("app_id", "a22cc89c");
-                params.put("app_key", "5b4221b0f185295c5a3bbbbb84a7c356");
-                params.put("ResourceVersion", "v4");
+                params.put("app_id", SchipholApiCredentials.APP_ID);
+                params.put("app_key", SchipholApiCredentials.APP_KEY);
+                params.put("ResourceVersion", SchipholApiCredentials.RESOURCE_VERSION);
 
                 return params;
             }

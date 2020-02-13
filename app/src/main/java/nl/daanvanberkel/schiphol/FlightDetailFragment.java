@@ -1,5 +1,7 @@
 package nl.daanvanberkel.schiphol;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -7,15 +9,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.volley.Response;
+
 import java.util.Locale;
 
+import nl.daanvanberkel.schiphol.helpers.FlightParser;
+import nl.daanvanberkel.schiphol.models.AircraftType;
+import nl.daanvanberkel.schiphol.models.Airline;
+import nl.daanvanberkel.schiphol.models.Destination;
 import nl.daanvanberkel.schiphol.models.Flight;
 import nl.daanvanberkel.schiphol.viewmodels.FlightDetailViewModel;
 
@@ -47,17 +58,91 @@ public class FlightDetailFragment extends Fragment {
         TextView flightDateTimeView = view.findViewById(R.id.flight_detail_datetime);
         TextView flightGateView = view.findViewById(R.id.flight_detail_gate);
         TextView flightTerminalView = view.findViewById(R.id.flight_detail_terminal);
-        TextView flightDestinationView = view.findViewById(R.id.flight_detail_destination);
+        final TextView flightDestinationView = view.findViewById(R.id.flight_detail_destination);
         TextView flightStateView = view.findViewById(R.id.flight_detail_state);
-        TextView flightAircraftView = view.findViewById(R.id.flight_detail_aircraft);
+        final TextView flightAircraftView = view.findViewById(R.id.flight_detail_aircraft);
+        ImageView aircraftHelp = view.findViewById(R.id.aircraft_help_button);
+        Button viewOnMapButton = view.findViewById(R.id.view_on_map_button);
+        TextView flightCodeshareView = view.findViewById(R.id.flight_detail_codeshare);
+        final TextView flightAirlineView = view.findViewById(R.id.flight_detail_airline);
 
         flightNameView.setText(flight.getName());
         flightDateTimeView.setText(String.format("%s %s", flight.getScheduleDate(), flight.getScheduleTime()));
         flightGateView.setText(flight.getGate());
         flightTerminalView.setText(String.format(Locale.getDefault(),"%d", flight.getTerminal()));
         flightDestinationView.setText(String.join(",\n", flight.getDestinations()));
-        flightStateView.setText(String.join(",\n", flight.getFlightStates()));
+        flightStateView.setText(String.join(",\n", FlightParser.parseStates(flight.getFlightStates())));
         flightAircraftView.setText(String.format("%s - %s", flight.getAircraftType().getIataMain(), flight.getAircraftType().getIataSub()));
+        flightAirlineView.setText(flight.getIcao());
+
+        if (flight.getCodeShares() != null) {
+            flightCodeshareView.setText(String.join(",\n", flight.getCodeShares()));
+        } else {
+            flightCodeshareView.setText(flight.getMainFlight());
+        }
+
+        // Gate text red on gate change
+        if (flight.hasState("GCH")) {
+            flightGateView.setTextColor(getResources().getColor(android.R.color.holo_red_light, getActivity().getTheme()));
+        }
+
+        // Handle "show on map" button click
+        aircraftHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://www.google.com/search?q=" + flightAircraftView.getText()));
+                startActivity(intent);
+            }
+        });
+
+        // Handle "search plane type" help button
+        viewOnMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("geo:0,0?q=" + flightDestinationView.getText()));
+                startActivity(intent);
+            }
+        });
+
+        // Load human readable aircraft type description
+        viewModel.getAircraftType(flight, new Response.Listener<AircraftType>() {
+            @Override
+            public void onResponse(AircraftType response) {
+                if (response == null) {
+                    return;
+                }
+
+                flightAircraftView.setText(response.getLongDescription());
+            }
+        });
+
+        // Load human readable destination name, city and country
+        viewModel.getDestination(flight.getDestinations()[flight.getDestinations().length - 1], new Response.Listener<Destination>() {
+            @Override
+            public void onResponse(Destination response) {
+                if (response == null) {
+                    return;
+                }
+
+                flightDestinationView.setText(String.format("%s, %s, %s", response.getDutchName(), response.getCity(), response.getCountry()));
+            }
+        });
+
+        // Load human readable airline name
+        viewModel.getAirline(flight.getIcao(), new Response.Listener<Airline>() {
+            @Override
+            public void onResponse(Airline response) {
+                if (response == null) {
+                    return;
+                }
+
+                flightAirlineView.setText(response.getName());
+            }
+        });
 
         return view;
     }
@@ -72,15 +157,20 @@ public class FlightDetailFragment extends Fragment {
             favoriteItem.setIcon(R.drawable.ic_favorite);
         }
 
+        // Handle "favorite" menu item click
         favoriteItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (viewModel.hasFavoriteFlight(flight.getId())) {
                     viewModel.removeFavoriteFlight(flight.getId());
                     item.setIcon(R.drawable.ic_favorite_border);
+
+                    Toast.makeText(getContext(), "Vlucht " + flight.getName() + " verwijderd als favoriet", Toast.LENGTH_SHORT).show();
                 } else {
                     viewModel.addFavoriteFlight(flight.getId());
                     item.setIcon(R.drawable.ic_favorite);
+
+                    Toast.makeText(getContext(), "Vlucht " + flight.getName() + " opgeslagen als favoriet", Toast.LENGTH_SHORT).show();
                 }
 
                 return true;

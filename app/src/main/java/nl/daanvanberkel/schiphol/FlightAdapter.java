@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
 
+import nl.daanvanberkel.schiphol.helpers.FlightParser;
 import nl.daanvanberkel.schiphol.models.Flight;
 
 public class FlightAdapter extends PagedListAdapter<Flight, FlightAdapter.FlightViewHolder> {
@@ -52,9 +53,21 @@ public class FlightAdapter extends PagedListAdapter<Flight, FlightAdapter.Flight
     public void onBindViewHolder(@NonNull FlightViewHolder holder, int position) {
         Flight currentFlight = getItem(position);
 
+        if (currentFlight == null) {
+            return;
+        }
+
+        // Set text color to red on gate change, otherwise set back to normal color
+        if (currentFlight.hasState("GCH")) {
+            int color = holder.flightGateView.getContext().getResources().getColor(android.R.color.holo_red_light, holder.flightGateView.getContext().getTheme());
+            holder.flightGateView.setTextColor(color);
+        } else {
+            holder.flightGateView.setTextColor(holder.flightNameView.getTextColors());
+        }
+
         holder.flightNameView.setText(currentFlight.getName());
         holder.flightDateTimeView.setText(String.format("%s %s", currentFlight.getScheduleDate(), currentFlight.getScheduleTime()));
-        holder.flightStateView.setText(currentFlight.getFirstFlightState());
+        holder.flightStateView.setText(FlightParser.parseState(currentFlight.getFirstFlightState()));
         holder.flightGateView.setText(currentFlight.getGate());
     }
 

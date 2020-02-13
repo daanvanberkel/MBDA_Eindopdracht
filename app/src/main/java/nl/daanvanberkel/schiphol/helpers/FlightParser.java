@@ -21,7 +21,7 @@ public class FlightParser {
         String name = flightJson.optString("flightName");
         int terminal = flightJson.optInt("terminal", 0);
         String mainFlight = flightJson.optString("mainFlight");
-
+        String icao = flightJson.optString("prefixICAO");
 
         flight.setId(id);
         flight.setScheduleDate(scheduleDate);
@@ -29,6 +29,7 @@ public class FlightParser {
         flight.setName(name);
         flight.setTerminal(terminal);
         flight.setMainFlight(mainFlight);
+        flight.setIcao(icao);
 
         // Set gate
         if (flightJson.isNull("gate")) {
@@ -48,7 +49,7 @@ public class FlightParser {
                     String[] flightStates = new String[flightStatesJson.length()];
 
                     for (int j = 0; j < flightStatesJson.length(); j++) {
-                        flightStates[j] = parseState(flightStatesJson.optString(j));
+                        flightStates[j] = flightStatesJson.optString(j);
                     }
 
                     flight.setFlightStates(flightStates);
@@ -84,6 +85,23 @@ public class FlightParser {
             aircraftType.setIataSub(aircraftTypeJson.optString("iataSub"));
 
             flight.setAircraftType(aircraftType);
+        }
+
+        // Set codeshares
+        JSONObject codeSharesJson = flightJson.optJSONObject("codeshares");
+
+        if (codeSharesJson != null && codeSharesJson.has("codeshares")) {
+            JSONArray codeSharesJsonArray = codeSharesJson.optJSONArray("codeshares");
+
+            if (codeSharesJsonArray != null) {
+                String[] codeShares = new String[codeSharesJsonArray.length()];
+
+                for(int i = 0; i < codeSharesJsonArray.length(); i++) {
+                    codeShares[i] = codeSharesJsonArray.optString(i);
+                }
+
+                flight.setCodeShares(codeShares);
+            }
         }
 
         return flight;
@@ -132,7 +150,17 @@ public class FlightParser {
             case "TOM":
                 return "Tomorrow";
             default:
-                return "State unknown";
+                return "State unknown - " + state;
         }
+    }
+
+    public static String[] parseStates(String[] states) {
+        String[] output = new String[states.length];
+
+        for (int i = 0; i < states.length; i++) {
+            output[i] = parseState(states[i]);
+        }
+
+        return output;
     }
 }

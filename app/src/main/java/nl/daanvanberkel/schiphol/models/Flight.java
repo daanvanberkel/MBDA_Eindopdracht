@@ -51,7 +51,7 @@ public class Flight implements Serializable {
      *           ]
      *         }
      *       },
-     *       "codeshares": {
+     *       "codeshares": {                                            --> codeshares
      *         "codeshares": [
      *           "string"
      *         ]
@@ -111,6 +111,8 @@ public class Flight implements Serializable {
     private String gate;
     private AircraftType aircraftType;
     private String mainFlight;
+    private String[] codeShares;
+    private String icao;
 
     public void setId(String id) {
         this.id = id;
@@ -150,6 +152,14 @@ public class Flight implements Serializable {
 
     public void setMainFlight(String mainFlight) {
         this.mainFlight = mainFlight;
+    }
+
+    public void setCodeShares(String[] codeShares) {
+        this.codeShares = codeShares;
+    }
+
+    public void setIcao(String icao) {
+        this.icao = icao;
     }
 
     public String getId() {
@@ -192,6 +202,14 @@ public class Flight implements Serializable {
         return mainFlight;
     }
 
+    public String[] getCodeShares() {
+        return codeShares;
+    }
+
+    public String getIcao() {
+        return icao;
+    }
+
     public String getFirstFlightState() {
         if (getFlightStates().length > 0) {
             return getFlightStates()[0];
@@ -200,12 +218,16 @@ public class Flight implements Serializable {
         }
     }
 
-    public String getFirstDestination() {
-        if (getDestinations().length > 0) {
-            return getDestinations()[0];
-        } else {
-            return "Destination unknown";
+    public boolean hasState(String state) {
+        if (getFlightStates() != null && getFlightStates().length > 0) {
+            for (String s: getFlightStates()) {
+                if (s.equals(state)) {
+                    return true;
+                }
+            }
         }
+
+        return false;
     }
 
     public static class AircraftType implements Serializable {
