@@ -9,6 +9,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.Intent;
 import android.os.Bundle;
 
+import nl.daanvanberkel.schiphol.helpers.JobServiceStarter;
 import nl.daanvanberkel.schiphol.viewmodels.FlightListViewModel;
 
 
@@ -20,6 +21,9 @@ public class FlightListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flight_list);
+
+        // Restart background job service to be the latest version of the service
+        JobServiceStarter.restartFavoriteFlightJobService(getApplicationContext());
 
         viewModel = new ViewModelProvider.AndroidViewModelFactory(getApplication()).create(FlightListViewModel.class);
         viewModel.refreshFlights();

@@ -82,8 +82,8 @@ public class FavoriteFlightService extends JobService {
                     if (flightDate.compareTo(Calendar.getInstance().getTime()) < 0) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Favoriete vlucht verwijderd")
-                                .setContentText("De vlucht " + response.getName() + " is verwijderd uit uw favoriete")
+                                .setContentTitle("Vlucht vertrokken")
+                                .setContentText("De vlucht " + response.getName() + " is vertrokken")
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), FLIGHT_REMOVED_NOTIFICATION_ID, builder.build());
