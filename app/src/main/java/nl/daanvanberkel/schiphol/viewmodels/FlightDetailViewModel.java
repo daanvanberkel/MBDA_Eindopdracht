@@ -5,16 +5,14 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
-import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -45,10 +43,6 @@ public class FlightDetailViewModel extends AndroidViewModel {
 
     public boolean hasFavoriteFlight(Flight flight) {
         return loadFavoriteFlights().hasFlight(flight);
-    }
-
-    public List<Flight> getFavoriteFlights() {
-        return loadFavoriteFlights().getFlights();
     }
 
     public void addFavoriteFlight(Flight flight) {
@@ -99,32 +93,24 @@ public class FlightDetailViewModel extends AndroidViewModel {
         }
     }
 
-    public void getAircraftType(Flight flight, final Response.Listener<AircraftType> listener) {
+    public LiveData<AircraftType> getAircraftType(Flight flight) {
+        MutableLiveData<AircraftType> aircraftTypeLiveData = new MutableLiveData<>();
+
         RequestQueue queue = Volley.newRequestQueue(getApplication().getApplicationContext());
 
         String url = "https://api.schiphol.nl/public-flights/aircrafttypes?iataMain=" + flight.getAircraftType().getIataMain() + "&iataSub=" + flight.getAircraftType().getIataSub();
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                List<AircraftType> aircraftTypes = new ArrayList<>();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+            List<AircraftType> aircraftTypes = new ArrayList<>();
 
-                if (response.has("aircraftTypes")) {
-                     aircraftTypes = AircraftTypeParser.parse(response.optJSONArray("aircraftTypes"));
-                }
+            if (response.has("aircraftTypes")) {
+                 aircraftTypes = AircraftTypeParser.parse(response.optJSONArray("aircraftTypes"));
+            }
 
-                if (aircraftTypes.size() > 0) {
-                    listener.onResponse(aircraftTypes.get(0));
-                } else {
-                    listener.onResponse(null);
-                }
+            if (aircraftTypes.size() > 0) {
+                aircraftTypeLiveData.postValue(aircraftTypes.get(0));
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                listener.onResponse(null);
-            }
-        }) {
+        }, error -> error.printStackTrace()) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -138,26 +124,22 @@ public class FlightDetailViewModel extends AndroidViewModel {
         };
 
         queue.add(jsonObjectRequest);
+
+        return aircraftTypeLiveData;
     }
 
-    public void getDestination(String iata, final Response.Listener<Destination> listener) {
+    public LiveData<Destination> getDestination(String iata) {
+        MutableLiveData<Destination> destinationLiveData = new MutableLiveData<>();
+
         RequestQueue queue = Volley.newRequestQueue(getApplication().getApplicationContext());
 
         String url = "https://api.schiphol.nl/public-flights/destinations/" + iata;
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Destination destination = DestinationParser.parse(response);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+            Destination destination = DestinationParser.parse(response);
 
-                listener.onResponse(destination);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                listener.onResponse(null);
-            }
-        }) {
+            destinationLiveData.postValue(destination);
+        }, error -> error.printStackTrace()) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -171,26 +153,22 @@ public class FlightDetailViewModel extends AndroidViewModel {
         };
 
         queue.add(jsonObjectRequest);
+
+        return destinationLiveData;
     }
 
-    public void getAirline(String icao, final Response.Listener<Airline> listener) {
+    public LiveData<Airline> getAirline(String icao) {
+        MutableLiveData<Airline> airlineLiveData = new MutableLiveData<>();
+
         RequestQueue queue = Volley.newRequestQueue(getApplication().getApplicationContext());
 
         String url = "https://api.schiphol.nl/public-flights/airlines/" + icao;
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
                 Airline airline = AirlineParser.parse(response);
 
-                listener.onResponse(airline);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                listener.onResponse(null);
-            }
-        }) {
+                airlineLiveData.postValue(airline);
+        }, error -> error.printStackTrace()) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -204,5 +182,7 @@ public class FlightDetailViewModel extends AndroidViewModel {
         };
 
         queue.add(jsonObjectRequest);
+
+        return airlineLiveData;
     }
 }

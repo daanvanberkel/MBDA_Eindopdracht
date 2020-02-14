@@ -10,13 +10,8 @@ import androidx.paging.PageKeyedDataSource;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -78,30 +73,25 @@ public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
 
         String url = "https://api.schiphol.nl/public-flights/flights?flightDirection=D&includedelays=false&page=" + page + "&sort=%2BscheduleDate%2C%2BscheduleTime&fromDateTime=" + date + "&searchDateTimeField=scheduleDateTime";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                List<Flight> flights = new ArrayList<>();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+            List<Flight> flights = new ArrayList<>();
 
-                if (response.has("flights")) {
-                    flights = FlightParser.parse(response.optJSONArray("flights"));
-                }
-
-                Integer adjacentPage;
-
-                if (flights.size() < 1) {
-                    adjacentPage = null;
-                } else {
-                    adjacentPage = page + 1;
-                }
-
-                callback.onResult(flights, adjacentPage);
+            if (response.has("flights")) {
+                flights = FlightParser.parse(response.optJSONArray("flights"));
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, "Vluchten kunnen niet worden weergegeven zonder internetverbinding", Toast.LENGTH_LONG).show();
+
+            Integer adjacentPage;
+
+            if (flights.size() < 1) {
+                adjacentPage = null;
+            } else {
+                adjacentPage = page + 1;
             }
+
+            callback.onResult(flights, adjacentPage);
+        }, error -> {
+            error.printStackTrace();
+            Toast.makeText(context, "Vluchten kunnen niet worden weergegeven zonder internetverbinding", Toast.LENGTH_LONG).show();
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {

@@ -7,17 +7,13 @@ import android.app.job.JobService;
 import android.content.Context;
 
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
-import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -71,123 +67,112 @@ public class FavoriteFlightService extends JobService {
             for(int i = 0; i < flights.size(); i++) {
                 final Flight flight = flights.get(i);
 
-                getFlight(flight.getId(), new Response.Listener<Flight>() {
-                    @Override
-                    public void onResponse(Flight response) {
-                        if (response == null) {
-                            return;
-                        }
+                getFlight(flight.getId(), response -> {
+                    if (response == null) {
+                        return;
+                    }
 
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date flightDate;
-                        try {
-                            flightDate = dateFormat.parse(response.getScheduleDate() + " " + response.getScheduleTime());
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                            removeFavoriteFlight(flight);
-                            return;
-                        }
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date flightDate;
+                    try {
+                        flightDate = dateFormat.parse(response.getScheduleDate() + " " + response.getScheduleTime());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        removeFavoriteFlight(flight);
+                        return;
+                    }
 
-                        // Remove out-dated flights
-                        if (flightDate.compareTo(Calendar.getInstance().getTime()) < 0) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Favoriete vlucht verwijderd")
-                                    .setContentText("De vlucht " + response.getName() + " is verwijderd uit uw favoriete")
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Remove out-dated flights
+                    if (flightDate.compareTo(Calendar.getInstance().getTime()) < 0) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Favoriete vlucht verwijderd")
+                                .setContentText("De vlucht " + response.getName() + " is verwijderd uit uw favoriete")
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), FLIGHT_REMOVED_NOTIFICATION_ID, builder.build());
+                        notificationManager.notify(flight.getId(), FLIGHT_REMOVED_NOTIFICATION_ID, builder.build());
 
-                            removeFavoriteFlight(flight);
-                            return;
-                        }
+                        removeFavoriteFlight(flight);
+                        return;
+                    }
 
-                        replaceFavoriteFlight(flight, response);
+                    replaceFavoriteFlight(flight, response);
 
-                        // Check for changed gate
-                        if (!response.getGate().equals(flight.getGate())) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Gate veranderd")
-                                    .setContentText("De gate voor vlucht " + response.getName() + " is veranderd van " + flight.getGate() + " naar " + response.getGate())
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Check for changed gate
+                    if (!response.getGate().equals(flight.getGate())) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Gate veranderd")
+                                .setContentText("De gate voor vlucht " + response.getName() + " is veranderd van " + flight.getGate() + " naar " + response.getGate())
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), GATE_CHANGE_NOTIFICATION_ID, builder.build());
-                        }
+                        notificationManager.notify(flight.getId(), GATE_CHANGE_NOTIFICATION_ID, builder.build());
+                    }
 
-                        // Check for delayed
-                        if (response.hasState("DEL") && !flight.hasState("DEL")) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Vlucht vertraagd")
-                                    .setContentText("De vlucht " + response.getName() + " is vertraagd")
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Check for delayed
+                    if (response.hasState("DEL") && !flight.hasState("DEL")) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Vlucht vertraagd")
+                                .setContentText("De vlucht " + response.getName() + " is vertraagd")
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), DELAYED_NOTIFICATION_ID, builder.build());
-                        }
+                        notificationManager.notify(flight.getId(), DELAYED_NOTIFICATION_ID, builder.build());
+                    }
 
-                        // Check for cancelled
-                        if (response.hasState("CNX") && !flight.hasState("CNX")) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Vlucht geannuleerd")
-                                    .setContentText("De vlucht " + response.getName() + " is geannuleerd")
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Check for cancelled
+                    if (response.hasState("CNX") && !flight.hasState("CNX")) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Vlucht geannuleerd")
+                                .setContentText("De vlucht " + response.getName() + " is geannuleerd")
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), CANCELLED_NOTIFICATION_ID, builder.build());
-                        }
+                        notificationManager.notify(flight.getId(), CANCELLED_NOTIFICATION_ID, builder.build());
+                    }
 
-                        // Check for gate open
-                        if (response.hasState("GTO") && !flight.hasState("GTO")) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Gate open")
-                                    .setContentText("De gate voor vlucht " + response.getName() + " is geopend")
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Check for gate open
+                    if (response.hasState("GTO") && !flight.hasState("GTO")) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Gate open")
+                                .setContentText("De gate voor vlucht " + response.getName() + " is geopend")
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), GATE_OPEN_NOTIFICATION_ID, builder.build());
-                        }
+                        notificationManager.notify(flight.getId(), GATE_OPEN_NOTIFICATION_ID, builder.build());
+                    }
 
-                        // Check for gate closed
-                        if (response.hasState("GTD") && !flight.hasState("GTD")) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Gate gesloten")
-                                    .setContentText("De gate voor vlucht " + response.getName() + " is gesloten")
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Check for gate closed
+                    if (response.hasState("GTD") && !flight.hasState("GTD")) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Gate gesloten")
+                                .setContentText("De gate voor vlucht " + response.getName() + " is gesloten")
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), GATE_CLOSED_NOTIFICATION_ID, builder.build());
-                        }
+                        notificationManager.notify(flight.getId(), GATE_CLOSED_NOTIFICATION_ID, builder.build());
+                    }
 
-                        // Check for boarding
-                        if (response.hasState("BRD") && !flight.hasState("BRD")) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Boarding gestart")
-                                    .setContentText("Boarding vlucht " + response.getName() + " is gestart")
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Check for boarding
+                    if (response.hasState("BRD") && !flight.hasState("BRD")) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Boarding gestart")
+                                .setContentText("Boarding vlucht " + response.getName() + " is gestart")
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), BOARDING_NOTIFICATION_ID, builder.build());
-                        }
+                        notificationManager.notify(flight.getId(), BOARDING_NOTIFICATION_ID, builder.build());
+                    }
 
-                        // Check for departed
-                        if (response.hasState("DEP") && !flight.hasState("DEP")) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_airplane)
-                                    .setContentTitle("Vlucht vertrokken")
-                                    .setContentText("De vlucht " + response.getName() + " is vertrokken")
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    // Check for departed
+                    if (response.hasState("DEP") && !flight.hasState("DEP")) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_airplane)
+                                .setContentTitle("Vlucht vertrokken")
+                                .setContentText("De vlucht " + response.getName() + " is vertrokken")
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(FavoriteFlightService.this);
-                            notificationManager.notify(flight.getId(), DEPARTED_NOTIFICATION_ID, builder.build());
-                        }
+                        notificationManager.notify(flight.getId(), DEPARTED_NOTIFICATION_ID, builder.build());
                     }
                 });
 
@@ -249,19 +234,11 @@ public class FavoriteFlightService extends JobService {
 
         String url = "https://api.schiphol.nl/public-flights/flights/" + id;
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Flight flight = FlightParser.parse(response);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+            Flight flight = FlightParser.parse(response);
 
-                listener.onResponse(flight);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                listener.onResponse(null);
-            }
-        }) {
+            listener.onResponse(flight);
+        }, error -> listener.onResponse(null)) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();

@@ -1,9 +1,7 @@
 package nl.daanvanberkel.schiphol;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -11,7 +9,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.Intent;
 import android.os.Bundle;
 
-import nl.daanvanberkel.schiphol.models.Flight;
 import nl.daanvanberkel.schiphol.viewmodels.FlightListViewModel;
 
 
@@ -30,44 +27,36 @@ public class FlightListActivity extends AppCompatActivity {
         final FlightAdapter adapter = new FlightAdapter();
 
         final SwipeRefreshLayout swipeContainer = findViewById(R.id.swipe_container);
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                viewModel.refreshFlights();
-            }
+        // Handle "pull to refresh"
+        swipeContainer.setOnRefreshListener(() -> viewModel.refreshFlights());
+
+        // Handle newly loaded flights
+        viewModel.getFlights().observe(this, flights -> {
+            adapter.submitList(flights);
+            swipeContainer.setRefreshing(false);
         });
 
-        viewModel.getFlights().observe(this, new Observer<PagedList<Flight>>() {
-            @Override
-            public void onChanged(PagedList<Flight> flights) {
-                adapter.submitList(flights);
-                swipeContainer.setRefreshing(false);
-            }
-        });
+        // Handle click on flight in the list
+        adapter.setOnItemClickListener(flight -> {
+            if (findViewById(R.id.flight_detail_fragment_container) != null) {
+                // Tablet, show fragment next to flight list
 
-        adapter.setOnItemClickListener(new FlightAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Flight flight) {
-                if (findViewById(R.id.flight_detail_fragment_container) != null) {
-                    // Tablet, show fragment next to flight list
+                Bundle arguments = new Bundle();
+                arguments.putSerializable(FlightDetailFragment.ARG_FLIGHT, flight);
 
-                    Bundle arguments = new Bundle();
-                    arguments.putSerializable(FlightDetailFragment.ARG_FLIGHT, flight);
+                FlightDetailFragment detailFragment = new FlightDetailFragment();
+                detailFragment.setArguments(arguments);
 
-                    FlightDetailFragment detailFragment = new FlightDetailFragment();
-                    detailFragment.setArguments(arguments);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flight_detail_fragment_container, detailFragment)
+                        .commit();
+            } else {
+                // Phone, open detail activity
 
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.flight_detail_fragment_container, detailFragment)
-                            .commit();
-                } else {
-                    // Phone, open detail activity
-
-                    Intent intent = new Intent(FlightListActivity.this, FlightDetailActivity.class);
-                    intent.putExtra(FlightDetailActivity.EXTRA_FLIGHT, flight);
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(FlightListActivity.this, FlightDetailActivity.class);
+                intent.putExtra(FlightDetailActivity.EXTRA_FLIGHT, flight);
+                startActivity(intent);
             }
         });
 

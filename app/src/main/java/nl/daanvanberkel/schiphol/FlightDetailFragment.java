@@ -19,14 +19,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.android.volley.Response;
-
 import java.util.Locale;
 
 import nl.daanvanberkel.schiphol.helpers.FlightParser;
-import nl.daanvanberkel.schiphol.models.AircraftType;
-import nl.daanvanberkel.schiphol.models.Airline;
-import nl.daanvanberkel.schiphol.models.Destination;
 import nl.daanvanberkel.schiphol.models.Flight;
 import nl.daanvanberkel.schiphol.viewmodels.FlightDetailViewModel;
 
@@ -46,13 +41,13 @@ public class FlightDetailFragment extends Fragment {
         View view = inflater.inflate(R.layout.flight_detail_fragment, container, false);
         setHasOptionsMenu(true);
 
-        viewModel = new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()).create(FlightDetailViewModel.class);
-
-        flight = (Flight) getArguments().getSerializable(ARG_FLIGHT);
-
-        if (flight == null) {
+        try {
+            viewModel = new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()).create(FlightDetailViewModel.class);
+            flight = (Flight) getArguments().getSerializable(ARG_FLIGHT);
+        } catch (NullPointerException e) {
             return view;
         }
+
 
         TextView flightNameView = view.findViewById(R.id.flight_detail_name);
         TextView flightDateTimeView = view.findViewById(R.id.flight_detail_datetime);
@@ -86,63 +81,32 @@ public class FlightDetailFragment extends Fragment {
             flightGateView.setTextColor(getResources().getColor(android.R.color.holo_red_light, getActivity().getTheme()));
         }
 
-        // Handle "show on map" button click
-        aircraftHelp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://www.google.com/search?q=" + flightAircraftView.getText()));
-                startActivity(intent);
-            }
+        // Handle "search plane type" button click
+        aircraftHelp.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://www.google.com/search?q=" + flightAircraftView.getText()));
+            startActivity(intent);
         });
 
-        // Handle "search plane type" help button
-        viewOnMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("geo:0,0?q=" + flightDestinationView.getText()));
-                startActivity(intent);
-            }
+        // Handle "show on map" help button
+        viewOnMapButton.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("geo:0,0?q=" + flightDestinationView.getText()));
+            startActivity(intent);
         });
 
         // Load human readable aircraft type description
-        viewModel.getAircraftType(flight, new Response.Listener<AircraftType>() {
-            @Override
-            public void onResponse(AircraftType response) {
-                if (response == null) {
-                    return;
-                }
-
-                flightAircraftView.setText(response.getLongDescription());
-            }
-        });
+        viewModel.getAircraftType(flight).observe(this, aircraftType -> flightAircraftView.setText(aircraftType.getLongDescription()));
 
         // Load human readable destination name, city and country
-        viewModel.getDestination(flight.getDestinations()[flight.getDestinations().length - 1], new Response.Listener<Destination>() {
-            @Override
-            public void onResponse(Destination response) {
-                if (response == null) {
-                    return;
-                }
-
-                flightDestinationView.setText(String.format("%s, %s, %s", response.getDutchName(), response.getCity(), response.getCountry()));
-            }
-        });
+        viewModel.getDestination(flight.getDestinations()[flight.getDestinations().length - 1])
+                .observe(this, destination ->
+                        flightDestinationView.setText(String.format("%s, %s, %s", destination.getDutchName(), destination.getCity(), destination.getCountry())));
 
         // Load human readable airline name
-        viewModel.getAirline(flight.getIcao(), new Response.Listener<Airline>() {
-            @Override
-            public void onResponse(Airline response) {
-                if (response == null) {
-                    return;
-                }
-
-                flightAirlineView.setText(response.getName());
-            }
-        });
+        viewModel.getAirline(flight.getIcao()).observe(this, airline -> flightAircraftView.setText(airline.getName()));
 
         return view;
     }
@@ -158,23 +122,20 @@ public class FlightDetailFragment extends Fragment {
         }
 
         // Handle "favorite" menu item click
-        favoriteItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (viewModel.hasFavoriteFlight(flight)) {
-                    viewModel.removeFavoriteFlight(flight);
-                    item.setIcon(R.drawable.ic_favorite_border);
+        favoriteItem.setOnMenuItemClickListener(item -> {
+            if (viewModel.hasFavoriteFlight(flight)) {
+                viewModel.removeFavoriteFlight(flight);
+                item.setIcon(R.drawable.ic_favorite_border);
 
-                    Toast.makeText(getContext(), "Vlucht " + flight.getName() + " verwijderd als favoriet", Toast.LENGTH_SHORT).show();
-                } else {
-                    viewModel.addFavoriteFlight(flight);
-                    item.setIcon(R.drawable.ic_favorite);
+                Toast.makeText(getContext(), "Vlucht " + flight.getName() + " verwijderd als favoriet", Toast.LENGTH_SHORT).show();
+            } else {
+                viewModel.addFavoriteFlight(flight);
+                item.setIcon(R.drawable.ic_favorite);
 
-                    Toast.makeText(getContext(), "Vlucht " + flight.getName() + " opgeslagen als favoriet", Toast.LENGTH_SHORT).show();
-                }
-
-                return true;
+                Toast.makeText(getContext(), "Vlucht " + flight.getName() + " opgeslagen als favoriet", Toast.LENGTH_SHORT).show();
             }
+
+            return true;
         });
 
         super.onCreateOptionsMenu(menu, inflater);
