@@ -13,7 +13,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <receiver android:name=".receivers.OnBootBroadcastReceiver"
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".FlightListActivity"></activity>
+
+        <receiver
+            android:name=".receivers.OnBootBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -21,14 +26,17 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".services.FavoriteFlightService"
+        <service
+            android:name=".services.FavoriteFlightService"
             android:label="Favorite Flights Service"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <activity android:name=".FlightDetailActivity"
-            android:parentActivityName=".FlightListActivity"></activity>
+        <activity
+            android:name=".FlightDetailActivity"
+            android:parentActivityName=".FlightListActivity" />
 
-        <activity android:name=".FlightListActivity"
+        <activity
+            android:name=".FlightListActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +44,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

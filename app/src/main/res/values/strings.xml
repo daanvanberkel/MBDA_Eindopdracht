@@ -12,4 +12,6 @@
     <string name="airline_label">Vliegmaatschappij</string>
     <string name="channel_name">Shiphol</string>
     <string name="channel_description">Schiphol informatie</string>
+    <string name="search_label">Vlucht zoeken</string>
+    <string name="settings_label">Instellingen</string>
 </resources>

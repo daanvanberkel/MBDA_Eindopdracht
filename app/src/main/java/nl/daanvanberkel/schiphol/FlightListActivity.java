@@ -1,6 +1,7 @@
 package nl.daanvanberkel.schiphol;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -8,6 +9,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import nl.daanvanberkel.schiphol.helpers.JobServiceStarter;
 import nl.daanvanberkel.schiphol.viewmodels.FlightListViewModel;
@@ -68,5 +71,21 @@ public class FlightListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        MenuItem settingsItem = menu.findItem(R.id.main_menu_settings);
+
+        settingsItem.setOnMenuItemClickListener(item -> {
+            Intent intent = new Intent(FlightListActivity.this, SettingsActivity.class);
+            startActivity(intent);
+
+            return true;
+        });
+
+        return super.onCreateOptionsMenu(menu);
     }
 }

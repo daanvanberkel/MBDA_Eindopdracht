@@ -26,7 +26,7 @@ public class JobServiceStarter {
         jobScheduler.schedule(builder.build());
     }
 
-    public static void restartFavoriteFlightJobService(Context context) {
+    public static void stopFavoriteFlightJobService(Context context) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
 
         JobInfo jobInfo = jobScheduler.getPendingJob(JOB_ID);
@@ -34,7 +34,10 @@ public class JobServiceStarter {
         if (jobInfo != null) {
             jobScheduler.cancel(JOB_ID);
         }
+    }
 
+    public static void restartFavoriteFlightJobService(Context context) {
+        stopFavoriteFlightJobService(context);
         startFavoriteFlightJobService(context);
     }
 }
