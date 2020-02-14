@@ -33,6 +33,7 @@ import nl.daanvanberkel.schiphol.models.Airline;
 import nl.daanvanberkel.schiphol.models.Destination;
 import nl.daanvanberkel.schiphol.models.FavoriteFlights;
 import nl.daanvanberkel.schiphol.models.Flight;
+import nl.daanvanberkel.schiphol.requests.SchipholRequest;
 
 public class FlightDetailViewModel extends AndroidViewModel {
     public static final String FAVORITE_FLIGHTS_FILENAME = "favorite_flights";
@@ -98,9 +99,9 @@ public class FlightDetailViewModel extends AndroidViewModel {
 
         RequestQueue queue = Volley.newRequestQueue(getApplication().getApplicationContext());
 
-        String url = "https://api.schiphol.nl/public-flights/aircrafttypes?iataMain=" + flight.getAircraftType().getIataMain() + "&iataSub=" + flight.getAircraftType().getIataSub();
+        String url = "/public-flights/aircrafttypes?iataMain=" + flight.getAircraftType().getIataMain() + "&iataSub=" + flight.getAircraftType().getIataSub();
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+        SchipholRequest jsonObjectRequest = new SchipholRequest(Request.Method.GET, url, null, response -> {
             List<AircraftType> aircraftTypes = new ArrayList<>();
 
             if (response.has("aircraftTypes")) {
@@ -110,18 +111,7 @@ public class FlightDetailViewModel extends AndroidViewModel {
             if (aircraftTypes.size() > 0) {
                 aircraftTypeLiveData.postValue(aircraftTypes.get(0));
             }
-        }, error -> error.printStackTrace()) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Accept", "application/json");
-                params.put("app_id", SchipholApiCredentials.APP_ID);
-                params.put("app_key", SchipholApiCredentials.APP_KEY);
-                params.put("ResourceVersion", SchipholApiCredentials.RESOURCE_VERSION);
-
-                return params;
-            }
-        };
+        }, error -> error.printStackTrace());
 
         queue.add(jsonObjectRequest);
 
@@ -133,24 +123,13 @@ public class FlightDetailViewModel extends AndroidViewModel {
 
         RequestQueue queue = Volley.newRequestQueue(getApplication().getApplicationContext());
 
-        String url = "https://api.schiphol.nl/public-flights/destinations/" + iata;
+        String url = "/public-flights/destinations/" + iata;
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+        SchipholRequest jsonObjectRequest = new SchipholRequest(Request.Method.GET, url, null, response -> {
             Destination destination = DestinationParser.parse(response);
 
             destinationLiveData.postValue(destination);
-        }, error -> error.printStackTrace()) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Accept", "application/json");
-                params.put("app_id", SchipholApiCredentials.APP_ID);
-                params.put("app_key", SchipholApiCredentials.APP_KEY);
-                params.put("ResourceVersion", SchipholApiCredentials.RESOURCE_VERSION);
-
-                return params;
-            }
-        };
+        }, error -> error.printStackTrace());
 
         queue.add(jsonObjectRequest);
 
@@ -162,24 +141,13 @@ public class FlightDetailViewModel extends AndroidViewModel {
 
         RequestQueue queue = Volley.newRequestQueue(getApplication().getApplicationContext());
 
-        String url = "https://api.schiphol.nl/public-flights/airlines/" + icao;
+        String url = "/public-flights/airlines/" + icao;
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+        SchipholRequest jsonObjectRequest = new SchipholRequest(Request.Method.GET, url, null, response -> {
                 Airline airline = AirlineParser.parse(response);
 
                 airlineLiveData.postValue(airline);
-        }, error -> error.printStackTrace()) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Accept", "application/json");
-                params.put("app_id", SchipholApiCredentials.APP_ID);
-                params.put("app_key", SchipholApiCredentials.APP_KEY);
-                params.put("ResourceVersion", SchipholApiCredentials.RESOURCE_VERSION);
-
-                return params;
-            }
-        };
+        }, error -> error.printStackTrace());
 
         queue.add(jsonObjectRequest);
 

@@ -8,11 +8,9 @@ import android.content.Context;
 
 import androidx.core.app.NotificationCompat;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.io.FileInputStream;
@@ -25,15 +23,13 @@ import java.text.SimpleDateFormat;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import nl.daanvanberkel.schiphol.R;
 import nl.daanvanberkel.schiphol.helpers.FlightParser;
-import nl.daanvanberkel.schiphol.helpers.SchipholApiCredentials;
 import nl.daanvanberkel.schiphol.models.FavoriteFlights;
 import nl.daanvanberkel.schiphol.models.Flight;
+import nl.daanvanberkel.schiphol.requests.SchipholRequest;
 import nl.daanvanberkel.schiphol.viewmodels.FlightDetailViewModel;
 
 public class FavoriteFlightService extends JobService {
@@ -232,24 +228,13 @@ public class FavoriteFlightService extends JobService {
     private void getFlight(String id, final Response.Listener<Flight> listener) {
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = "https://api.schiphol.nl/public-flights/flights/" + id;
+        String url = "/public-flights/flights/" + id;
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+        SchipholRequest jsonObjectRequest = new SchipholRequest(Request.Method.GET, url, null, response -> {
             Flight flight = FlightParser.parse(response);
 
             listener.onResponse(flight);
-        }, error -> listener.onResponse(null)) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Accept", "application/json");
-                params.put("app_id", SchipholApiCredentials.APP_ID);
-                params.put("app_key", SchipholApiCredentials.APP_KEY);
-                params.put("ResourceVersion", SchipholApiCredentials.RESOURCE_VERSION);
-
-                return params;
-            }
-        };
+        }, error -> listener.onResponse(null));
 
         queue.add(jsonObjectRequest);
     }

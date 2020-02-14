@@ -7,22 +7,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.paging.PageKeyedDataSource;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import nl.daanvanberkel.schiphol.helpers.FlightParser;
-import nl.daanvanberkel.schiphol.helpers.SchipholApiCredentials;
 import nl.daanvanberkel.schiphol.models.Flight;
+import nl.daanvanberkel.schiphol.requests.SchipholRequest;
 
 public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
 
@@ -71,9 +67,9 @@ public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
                 currentTime.get(Calendar.MINUTE),
                 currentTime.get(Calendar.SECOND));
 
-        String url = "https://api.schiphol.nl/public-flights/flights?flightDirection=D&includedelays=false&page=" + page + "&sort=%2BscheduleDate%2C%2BscheduleTime&fromDateTime=" + date + "&searchDateTimeField=scheduleDateTime";
+        String url = "/public-flights/flights?flightDirection=D&includedelays=false&page=" + page + "&sort=%2BscheduleDate%2C%2BscheduleTime&fromDateTime=" + date + "&searchDateTimeField=scheduleDateTime";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+        SchipholRequest jsonObjectRequest = new SchipholRequest(Request.Method.GET, url, null, response -> {
             List<Flight> flights = new ArrayList<>();
 
             if (response.has("flights")) {
@@ -92,18 +88,7 @@ public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
         }, error -> {
             error.printStackTrace();
             Toast.makeText(context, "Vluchten kunnen niet worden weergegeven zonder internetverbinding", Toast.LENGTH_LONG).show();
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Accept", "application/json");
-                params.put("app_id", SchipholApiCredentials.APP_ID);
-                params.put("app_key", SchipholApiCredentials.APP_KEY);
-                params.put("ResourceVersion", SchipholApiCredentials.RESOURCE_VERSION);
-
-                return params;
-            }
-        };
+        });
 
         queue.add(jsonObjectRequest);
     }
