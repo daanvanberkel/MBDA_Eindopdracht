@@ -113,7 +113,10 @@ public class FlightDetailFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.detail_fragment_menu, menu);
+        if (!viewModel.menuSet) {
+            inflater.inflate(R.menu.detail_fragment_menu, menu);
+            viewModel.menuSet = true;
+        }
 
         MenuItem favoriteItem = menu.findItem(R.id.favorite_menu_item);
 

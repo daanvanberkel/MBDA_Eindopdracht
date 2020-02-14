@@ -1,22 +1,28 @@
 package nl.daanvanberkel.schiphol;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import nl.daanvanberkel.schiphol.helpers.JobServiceStarter;
 import nl.daanvanberkel.schiphol.viewmodels.FlightListViewModel;
 
 
 public class FlightListActivity extends AppCompatActivity {
+
+    public static final int MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 1;
 
     private FlightListViewModel viewModel;
 
@@ -86,6 +92,33 @@ public class FlightListActivity extends AppCompatActivity {
             return true;
         });
 
+        MenuItem contactItem = menu.findItem(R.id.main_menu_contact);
+
+        contactItem.setOnMenuItemClickListener(item -> {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_CONTACTS}, MY_PERMISSIONS_REQUEST_WRITE_CONTACTS);
+                return false;
+            }
+
+            viewModel.addToContacts();
+            Toast.makeText(this, "Schiphol is toegevoegd aan uw contacten", Toast.LENGTH_SHORT).show();
+
+            return true;
+        });
+
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_CONTACTS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                viewModel.addToContacts();
+
+                Toast.makeText(this, "Schiphol is toegevoegd aan uw contacten", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "De app heeft geen toegang tot uw contacten", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

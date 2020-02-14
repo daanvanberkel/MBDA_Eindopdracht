@@ -14,4 +14,5 @@
     <string name="channel_description">Schiphol informatie</string>
     <string name="search_label">Vlucht zoeken</string>
     <string name="settings_label">Instellingen</string>
+    <string name="contact_label">Schiphol toevoegen aan contacten</string>
 </resources>

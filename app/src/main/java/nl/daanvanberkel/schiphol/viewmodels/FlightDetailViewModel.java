@@ -8,10 +8,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.io.FileInputStream;
@@ -20,14 +18,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import nl.daanvanberkel.schiphol.helpers.AircraftTypeParser;
 import nl.daanvanberkel.schiphol.helpers.AirlineParser;
 import nl.daanvanberkel.schiphol.helpers.DestinationParser;
-import nl.daanvanberkel.schiphol.helpers.SchipholApiCredentials;
 import nl.daanvanberkel.schiphol.models.AircraftType;
 import nl.daanvanberkel.schiphol.models.Airline;
 import nl.daanvanberkel.schiphol.models.Destination;
@@ -41,6 +36,8 @@ public class FlightDetailViewModel extends AndroidViewModel {
     public FlightDetailViewModel(@NonNull Application application) {
         super(application);
     }
+
+    public boolean menuSet = false;
 
     public boolean hasFavoriteFlight(Flight flight) {
         return loadFavoriteFlights().hasFlight(flight);
