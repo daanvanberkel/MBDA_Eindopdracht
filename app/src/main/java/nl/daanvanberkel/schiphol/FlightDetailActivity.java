@@ -34,7 +34,7 @@ public class FlightDetailActivity extends AppCompatActivity {
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.flight_detail_fragment_container, detailFragment)
+                .replace(R.id.flight_detail_fragment_container, detailFragment)
                 .commit();
     }
 }
