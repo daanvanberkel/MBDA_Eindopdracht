@@ -10,6 +10,7 @@ import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 import nl.daanvanberkel.schiphol.helpers.FlightParser;
@@ -65,8 +66,20 @@ public class FlightAdapter extends PagedListAdapter<Flight, FlightAdapter.Flight
             holder.flightGateView.setTextColor(holder.flightNameView.getTextColors());
         }
 
+        // Set text color to red on delayed, otherwise set back to normal color
+        if (currentFlight.getDelayedInMinutes() > 0) {
+            int color = holder.flightDateTimeView.getContext().getResources().getColor(android.R.color.holo_red_light, holder.flightDateTimeView.getContext().getTheme());
+            holder.flightDateTimeView.setTextColor(color);
+        } else {
+            holder.flightDateTimeView.setTextColor(holder.flightNameView.getTextColors());
+        }
+
+        if (currentFlight.getEstimatedDateTime() != null) {
+            holder.flightDateTimeView.setText(currentFlight.getEstimatedDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+        } else {
+            holder.flightDateTimeView.setText(currentFlight.getScheduleDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+        }
         holder.flightNameView.setText(currentFlight.getName());
-        holder.flightDateTimeView.setText(String.format("%s %s", currentFlight.getScheduleDate(), currentFlight.getScheduleTime()));
         holder.flightStateView.setText(FlightParser.parseState(currentFlight.getFirstFlightState()));
         holder.flightGateView.setText(currentFlight.getGate());
     }

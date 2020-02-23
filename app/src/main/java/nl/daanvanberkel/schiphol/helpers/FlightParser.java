@@ -3,6 +3,11 @@ package nl.daanvanberkel.schiphol.helpers;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
+import java.time.chrono.IsoChronology;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +35,20 @@ public class FlightParser {
         flight.setTerminal(terminal);
         flight.setMainFlight(mainFlight);
         flight.setIcao(icao);
+
+        // Set scheduleDateTime
+        if (!flightJson.isNull("scheduleDateTime")) {
+            String dateTime = flightJson.optString("scheduleDateTime");
+            dateTime = dateTime.replace(".000", "");
+            flight.setScheduleDateTime(LocalDateTime.parse(dateTime, DateTimeFormatter.ISO_DATE_TIME));
+        }
+
+        // Set estimatedDateTime
+        if (!flightJson.isNull("publicEstimatedOffBlockTime")) {
+            String dateTime = flightJson.optString("publicEstimatedOffBlockTime");
+            dateTime = dateTime.replace(".000", "");
+            flight.setEstimatedDateTime(LocalDateTime.parse(dateTime, DateTimeFormatter.ISO_DATE_TIME));
+        }
 
         // Set gate
         if (flightJson.isNull("gate")) {

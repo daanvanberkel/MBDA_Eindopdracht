@@ -1,6 +1,8 @@
 package nl.daanvanberkel.schiphol.models;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Flight implements Serializable {
     /**
@@ -72,7 +74,7 @@ public class Flight implements Serializable {
      *       "prefixIATA": "string",
      *       "prefixICAO": "string",
      *       "airlineCode": 0,
-     *       "publicEstimatedOffBlockTime": "2020-02-11T09:04:21.190Z",
+     *       "publicEstimatedOffBlockTime": "2020-02-11T09:04:21.190Z", --> estimatedDateTime
      *       "publicFlightState": {                                     --> flightStates
      *         "flightStates": [
      *           "string"
@@ -85,7 +87,7 @@ public class Flight implements Serializable {
      *         "eu": "string",
      *         "visa": true
      *       },
-     *       "scheduleDateTime": "2020-02-11T09:04:21.190Z",
+     *       "scheduleDateTime": "2020-02-11T09:04:21.190Z",            --> scheduleDateTime
      *       "scheduleDate": "string",                                  --> scheduleDate
      *       "scheduleTime": "string",                                  --> scheduleTime
      *       "serviceType": "string",
@@ -113,6 +115,8 @@ public class Flight implements Serializable {
     private String mainFlight;
     private String[] codeShares;
     private String icao;
+    private LocalDateTime scheduleDateTime;
+    private LocalDateTime estimatedDateTime;
 
     public void setId(String id) {
         this.id = id;
@@ -160,6 +164,14 @@ public class Flight implements Serializable {
 
     public void setIcao(String icao) {
         this.icao = icao;
+    }
+
+    public void setScheduleDateTime(LocalDateTime scheduleDateTime) {
+        this.scheduleDateTime = scheduleDateTime;
+    }
+
+    public void setEstimatedDateTime(LocalDateTime estimatedDateTime) {
+        this.estimatedDateTime = estimatedDateTime;
     }
 
     public String getId() {
@@ -210,6 +222,14 @@ public class Flight implements Serializable {
         return icao;
     }
 
+    public LocalDateTime getScheduleDateTime() {
+        return scheduleDateTime;
+    }
+
+    public LocalDateTime getEstimatedDateTime() {
+        return estimatedDateTime;
+    }
+
     public String getFirstFlightState() {
         if (getFlightStates().length > 0) {
             return getFlightStates()[0];
@@ -228,6 +248,14 @@ public class Flight implements Serializable {
         }
 
         return false;
+    }
+
+    public long getDelayedInMinutes() {
+        if (getScheduleDateTime() == null || estimatedDateTime == null) {
+            return 0;
+        }
+
+        return getScheduleDateTime().until(getEstimatedDateTime(), ChronoUnit.MINUTES);
     }
 
     public static class AircraftType implements Serializable {

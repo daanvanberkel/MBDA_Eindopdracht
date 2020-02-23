@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -68,18 +69,16 @@ public class FavoriteFlightService extends JobService {
                         return;
                     }
 
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date flightDate;
-                    try {
-                        flightDate = dateFormat.parse(response.getScheduleDate() + " " + response.getScheduleTime());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        removeFavoriteFlight(flight);
-                        return;
+                    LocalDateTime flightDate;
+
+                    if (flight.getEstimatedDateTime() != null) {
+                        flightDate = flight.getEstimatedDateTime();
+                    } else {
+                        flightDate = flight.getScheduleDateTime();
                     }
 
                     // Remove out-dated flights
-                    if (flightDate.compareTo(Calendar.getInstance().getTime()) < 0) {
+                    if (flightDate.compareTo(LocalDateTime.now()) < 0) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
                                 .setContentTitle("Vlucht vertrokken")

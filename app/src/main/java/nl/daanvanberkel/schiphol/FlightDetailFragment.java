@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import nl.daanvanberkel.schiphol.helpers.FlightParser;
@@ -62,7 +63,7 @@ public class FlightDetailFragment extends Fragment {
         final TextView flightAirlineView = view.findViewById(R.id.flight_detail_airline);
 
         flightNameView.setText(flight.getName());
-        flightDateTimeView.setText(String.format("%s %s", flight.getScheduleDate(), flight.getScheduleTime()));
+        flightDateTimeView.setText(flight.getScheduleDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
         flightGateView.setText(flight.getGate());
         flightTerminalView.setText(String.format(Locale.getDefault(),"%d", flight.getTerminal()));
         flightDestinationView.setText(String.join(",\n", flight.getDestinations()));
@@ -74,6 +75,12 @@ public class FlightDetailFragment extends Fragment {
             flightCodeshareView.setText(String.join(",\n", flight.getCodeShares()));
         } else {
             flightCodeshareView.setText(flight.getMainFlight());
+        }
+
+        // Change schedule date/time to red when delayed
+        if (flight.getDelayedInMinutes() > 0) {
+            flightDateTimeView.setTextColor(getResources().getColor(android.R.color.holo_red_light, getActivity().getTheme()));
+            flightDateTimeView.setText(String.format("%s +%s minuten", flightDateTimeView.getText(), flight.getDelayedInMinutes()));
         }
 
         // Gate text red on gate change
@@ -106,7 +113,7 @@ public class FlightDetailFragment extends Fragment {
                         flightDestinationView.setText(String.format("%s, %s, %s", destination.getDutchName(), destination.getCity(), destination.getCountry())));
 
         // Load human readable airline name
-        viewModel.getAirline(flight.getIcao()).observe(this, airline -> flightAircraftView.setText(airline.getName()));
+        viewModel.getAirline(flight.getIcao()).observe(this, airline -> flightAirlineView.setText(airline.getName()));
 
         return view;
     }
