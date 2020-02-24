@@ -67,7 +67,7 @@ public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
                 currentTime.get(Calendar.MINUTE),
                 currentTime.get(Calendar.SECOND));
 
-        String url = "/public-flights/flights?flightDirection=D&includedelays=false&page=" + page + "&sort=+publicEstimatedOffBlockTime&fromDateTime=" + date + "&searchDateTimeField=publicEstimatedOffBlockTime";
+        String url = "/public-flights/flights?flightDirection=D&includedelays=false&page=" + page + "&sort=+publicEstimatedOffBlockTime&fromDateTime=" + date + "&searchDateTimeField=scheduleDateTime";
 
         SchipholRequest jsonObjectRequest = new SchipholRequest(Request.Method.GET, url, null, response -> {
             List<Flight> flights = new ArrayList<>();
