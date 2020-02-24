@@ -7,16 +7,11 @@
     android:orientation="horizontal"
     tools:context=".FlightListActivity">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_container"
-        android:layout_width="250dp"
+    <FrameLayout
+        android:id="@+id/main_fragment_container"
+        android:layout_width="300dp"
         android:layout_height="match_parent">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/flight_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/flight_list_item" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </FrameLayout>
 
 
     <FrameLayout

@@ -34,7 +34,12 @@ public class FlightParser {
         flight.setName(name);
         flight.setTerminal(terminal);
         flight.setMainFlight(mainFlight);
-        flight.setIcao(icao);
+
+        if (!flightJson.isNull("prefixICAO")) {
+            flight.setIcao(icao);
+        } else {
+            flight.setIcao("Onbekend");
+        }
 
         // Set scheduleDateTime
         if (!flightJson.isNull("scheduleDateTime")) {
@@ -100,8 +105,14 @@ public class FlightParser {
 
         if (aircraftTypeJson != null && aircraftTypeJson.has("iataMain") && aircraftTypeJson.has("iataSub")) {
             Flight.AircraftType aircraftType = new Flight.AircraftType();
-            aircraftType.setIataMain(aircraftTypeJson.optString("iataMain"));
-            aircraftType.setIataSub(aircraftTypeJson.optString("iataSub"));
+
+            if (!aircraftTypeJson.isNull("iataMain")) {
+                aircraftType.setIataMain(aircraftTypeJson.optString("iataMain"));
+            }
+
+            if (!aircraftTypeJson.isNull("iataSub")) {
+                aircraftType.setIataSub(aircraftTypeJson.optString("iataSub"));
+            }
 
             flight.setAircraftType(aircraftType);
         }

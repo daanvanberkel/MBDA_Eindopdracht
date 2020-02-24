@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +48,10 @@ public class FlightDetailFragment extends Fragment {
             viewModel = new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()).create(FlightDetailViewModel.class);
             flight = (Flight) getArguments().getSerializable(ARG_FLIGHT);
         } catch (NullPointerException e) {
+            return view;
+        }
+
+        if (flight == null) {
             return view;
         }
 
@@ -122,16 +125,22 @@ public class FlightDetailFragment extends Fragment {
             startActivity(intent);
         });
 
-        // Load human readable aircraft type description
-        viewModel.getAircraftType(flight).observe(this, aircraftType -> flightAircraftView.setText(aircraftType.getLongDescription()));
+        if (flight.getAircraftType().getIataSub() != null && flight.getAircraftType().getIataMain() != null) {
+            // Load human readable aircraft type description
+            viewModel.getAircraftType(flight).observe(this, aircraftType -> flightAircraftView.setText(aircraftType.getLongDescription()));
+        }
 
-        // Load human readable destination name, city and country
-        viewModel.getDestination(flight.getDestinations()[flight.getDestinations().length - 1])
-                .observe(this, destination ->
-                        flightDestinationView.setText(String.format("%s, %s, %s", destination.getDutchName(), destination.getCity(), destination.getCountry())));
+        if (flight.getDestinations().length > 0) {
+            // Load human readable destination name, city and country
+            viewModel.getDestination(flight.getDestinations()[flight.getDestinations().length - 1])
+                    .observe(this, destination ->
+                            flightDestinationView.setText(String.format("%s, %s, %s", destination.getDutchName(), destination.getCity(), destination.getCountry())));
+        }
 
-        // Load human readable airline name
-        viewModel.getAirline(flight.getIcao()).observe(this, airline -> flightAirlineView.setText(airline.getName()));
+        if (!flight.getIcao().equals("Onbekend")) {
+            // Load human readable airline name
+            viewModel.getAirline(flight.getIcao()).observe(this, airline -> flightAirlineView.setText(airline.getName()));
+        }
     }
 
     @Override
