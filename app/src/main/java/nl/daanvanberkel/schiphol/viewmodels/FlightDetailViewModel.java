@@ -104,7 +104,7 @@ public class FlightDetailViewModel extends AndroidViewModel {
             Flight newFlight = FlightParser.parse(response);
 
             this.flight.postValue(newFlight);
-        }, error -> error.printStackTrace());
+        }, Throwable::printStackTrace);
 
         queue.add(jsonObjectRequest);
     }
@@ -126,7 +126,7 @@ public class FlightDetailViewModel extends AndroidViewModel {
             if (aircraftTypes.size() > 0) {
                 aircraftTypeLiveData.postValue(aircraftTypes.get(0));
             }
-        }, error -> error.printStackTrace());
+        }, Throwable::printStackTrace);
 
         queue.add(jsonObjectRequest);
 
@@ -144,7 +144,7 @@ public class FlightDetailViewModel extends AndroidViewModel {
             Destination destination = DestinationParser.parse(response);
 
             destinationLiveData.postValue(destination);
-        }, error -> error.printStackTrace());
+        }, Throwable::printStackTrace);
 
         queue.add(jsonObjectRequest);
 
@@ -162,7 +162,7 @@ public class FlightDetailViewModel extends AndroidViewModel {
                 Airline airline = AirlineParser.parse(response);
 
                 airlineLiveData.postValue(airline);
-        }, error -> error.printStackTrace());
+        }, Throwable::printStackTrace);
 
         queue.add(jsonObjectRequest);
 
