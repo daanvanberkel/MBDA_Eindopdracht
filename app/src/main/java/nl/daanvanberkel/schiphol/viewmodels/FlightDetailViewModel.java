@@ -23,6 +23,7 @@ import java.util.List;
 import nl.daanvanberkel.schiphol.helpers.AircraftTypeParser;
 import nl.daanvanberkel.schiphol.helpers.AirlineParser;
 import nl.daanvanberkel.schiphol.helpers.DestinationParser;
+import nl.daanvanberkel.schiphol.helpers.FlightParser;
 import nl.daanvanberkel.schiphol.models.AircraftType;
 import nl.daanvanberkel.schiphol.models.Airline;
 import nl.daanvanberkel.schiphol.models.Destination;
@@ -35,9 +36,12 @@ public class FlightDetailViewModel extends AndroidViewModel {
 
     public FlightDetailViewModel(@NonNull Application application) {
         super(application);
+
+        flight = new MutableLiveData<>();
     }
 
     public boolean menuSet = false;
+    public MutableLiveData<Flight> flight;
 
     public boolean hasFavoriteFlight(Flight flight) {
         return loadFavoriteFlights().hasFlight(flight);
@@ -89,6 +93,20 @@ public class FlightDetailViewModel extends AndroidViewModel {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void getFlight(Flight flight) {
+        RequestQueue queue = Volley.newRequestQueue(getApplication().getApplicationContext());
+
+        String url = "/public-flights/flights/" + flight.getId();
+
+        SchipholRequest jsonObjectRequest = new SchipholRequest(Request.Method.GET, url, null, response -> {
+            Flight newFlight = FlightParser.parse(response);
+
+            this.flight.postValue(newFlight);
+        }, error -> error.printStackTrace());
+
+        queue.add(jsonObjectRequest);
     }
 
     public LiveData<AircraftType> getAircraftType(Flight flight) {

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -32,6 +34,7 @@ public class FlightDetailFragment extends Fragment {
 
     private FlightDetailViewModel viewModel;
     private Flight flight;
+    private View view;
 
     public FlightDetailFragment() {
     }
@@ -39,7 +42,7 @@ public class FlightDetailFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.flight_detail_fragment, container, false);
+        view = inflater.inflate(R.layout.flight_detail_fragment, container, false);
         setHasOptionsMenu(true);
 
         try {
@@ -49,6 +52,21 @@ public class FlightDetailFragment extends Fragment {
             return view;
         }
 
+        final SwipeRefreshLayout swipeContainer = view.findViewById(R.id.detail_swipe_container);
+        // Handle "pull to refresh"
+        swipeContainer.setOnRefreshListener(() -> viewModel.getFlight(flight));
+        viewModel.flight.observe(this, flight -> {
+            setFlight(flight);
+            swipeContainer.setRefreshing(false);
+        });
+
+        setFlight(flight);
+
+        return view;
+    }
+
+    private void setFlight(Flight flight) {
+        this.flight = flight;
 
         TextView flightNameView = view.findViewById(R.id.flight_detail_name);
         TextView flightDateTimeView = view.findViewById(R.id.flight_detail_datetime);
@@ -114,8 +132,6 @@ public class FlightDetailFragment extends Fragment {
 
         // Load human readable airline name
         viewModel.getAirline(flight.getIcao()).observe(this, airline -> flightAirlineView.setText(airline.getName()));
-
-        return view;
     }
 
     @Override

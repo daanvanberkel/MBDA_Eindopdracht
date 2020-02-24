@@ -32,11 +32,9 @@ public class FlightListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_flight_list);
 
         // Receive data from another app
-        // Run example:
-        // ~/Library/Android/sdk/platform-tools/adb shell am start -a android.intent.action.SEND -t text/plain -c android.intent.category.DEFAULT --es android.intent.extra.TEXT "Dit\ is\ data\ van\ een\ andere\ app"
         Intent startIntent = getIntent();
         if (startIntent.getAction() != null && startIntent.getAction().equals(Intent.ACTION_SEND)) {
-            Toast.makeText(this, startIntent.getStringExtra(Intent.EXTRA_TEXT), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, startIntent.getStringExtra(Intent.EXTRA_TEXT), Toast.LENGTH_LONG).show();
         }
 
         // Restart background job service to be the latest version of the service
