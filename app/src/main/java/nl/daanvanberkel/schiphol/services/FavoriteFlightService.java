@@ -42,8 +42,6 @@ public class FavoriteFlightService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        System.out.println("Starting background job");
-
         // Create notification channel
         CharSequence name = getString(R.string.channel_name);
         String description = getString(R.string.channel_description);
@@ -77,8 +75,8 @@ public class FavoriteFlightService extends JobService {
                     if (flightDate.compareTo(LocalDateTime.now()) < 0) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Vlucht vertrokken")
-                                .setContentText("De vlucht " + response.getName() + " is vertrokken")
+                                .setContentTitle(getApplicationContext().getString(R.string.flight_departed_title))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.flight_departed_desc), response.getName()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), FLIGHT_REMOVED_NOTIFICATION_ID, builder.build());
@@ -93,8 +91,8 @@ public class FavoriteFlightService extends JobService {
                     if (!response.getGate().equals(flight.getGate())) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Gate veranderd")
-                                .setContentText("De gate voor vlucht " + response.getName() + " is veranderd van " + flight.getGate() + " naar " + response.getGate())
+                                .setContentTitle(getApplicationContext().getString(R.string.gate_change))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.gate_change_desc), response.getName(), flight.getGate(), response.getGate()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), GATE_CHANGE_NOTIFICATION_ID, builder.build());
@@ -104,8 +102,8 @@ public class FavoriteFlightService extends JobService {
                     if (response.hasState("DEL") && !flight.hasState("DEL")) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Vlucht vertraagd")
-                                .setContentText("De vlucht " + response.getName() + " is vertraagd")
+                                .setContentTitle(getApplicationContext().getString(R.string.flight_delayed_title))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.flight_delayed_desc), response.getName()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), DELAYED_NOTIFICATION_ID, builder.build());
@@ -115,8 +113,8 @@ public class FavoriteFlightService extends JobService {
                     if (response.hasState("CNX") && !flight.hasState("CNX")) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Vlucht geannuleerd")
-                                .setContentText("De vlucht " + response.getName() + " is geannuleerd")
+                                .setContentTitle(getApplicationContext().getString(R.string.flight_cancelled_title))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.flight_cancelled_desc), response.getName()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), CANCELLED_NOTIFICATION_ID, builder.build());
@@ -126,8 +124,8 @@ public class FavoriteFlightService extends JobService {
                     if (response.hasState("GTO") && !flight.hasState("GTO")) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Gate open")
-                                .setContentText("De gate voor vlucht " + response.getName() + " is geopend")
+                                .setContentTitle(getApplicationContext().getString(R.string.gate_open))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.gate_open_desc), response.getName()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), GATE_OPEN_NOTIFICATION_ID, builder.build());
@@ -137,8 +135,8 @@ public class FavoriteFlightService extends JobService {
                     if (response.hasState("GTD") && !flight.hasState("GTD")) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Gate gesloten")
-                                .setContentText("De gate voor vlucht " + response.getName() + " is gesloten")
+                                .setContentTitle(getApplicationContext().getString(R.string.gate_closed))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.gate_closed_desc), response.getName()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), GATE_CLOSED_NOTIFICATION_ID, builder.build());
@@ -148,8 +146,8 @@ public class FavoriteFlightService extends JobService {
                     if (response.hasState("BRD") && !flight.hasState("BRD")) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Boarding gestart")
-                                .setContentText("Boarding vlucht " + response.getName() + " is gestart")
+                                .setContentTitle(getApplicationContext().getString(R.string.boarding_start_title))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.boarding_start_desc), response.getName()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), BOARDING_NOTIFICATION_ID, builder.build());
@@ -159,8 +157,8 @@ public class FavoriteFlightService extends JobService {
                     if (response.hasState("DEP") && !flight.hasState("DEP")) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(FavoriteFlightService.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_airplane)
-                                .setContentTitle("Vlucht vertrokken")
-                                .setContentText("De vlucht " + response.getName() + " is vertrokken")
+                                .setContentTitle(getApplicationContext().getString(R.string.flight_departed_title))
+                                .setContentText(String.format(getApplicationContext().getString(R.string.flight_departed_desc), response.getName()))
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                         notificationManager.notify(flight.getId(), DEPARTED_NOTIFICATION_ID, builder.build());

@@ -23,7 +23,7 @@ public class FlightDetailActivity extends AppCompatActivity {
             return;
         }
 
-        setTitle(String.format("Vlucht %s", flight.getName()));
+        setTitle(String.format(getString(R.string.flight_title), flight.getName()));
 
         Bundle arguments = new Bundle();
         arguments.putSerializable(FlightDetailFragment.ARG_FLIGHT, flight);

@@ -88,7 +88,7 @@ public class FlightDetailFragment extends Fragment {
         flightGateView.setText(flight.getGate());
         flightTerminalView.setText(String.format(Locale.getDefault(),"%d", flight.getTerminal()));
         flightDestinationView.setText(String.join(",\n", flight.getDestinations()));
-        flightStateView.setText(String.join(",\n", FlightParser.parseStates(flight.getFlightStates())));
+        flightStateView.setText(String.join(",\n", FlightParser.parseStates(flight.getFlightStates(), getContext())));
         flightAircraftView.setText(String.format("%s - %s", flight.getAircraftType().getIataMain(), flight.getAircraftType().getIataSub()));
         flightAirlineView.setText(flight.getIcao());
 
@@ -101,7 +101,7 @@ public class FlightDetailFragment extends Fragment {
         // Change schedule date/time to red when delayed
         if (flight.getDelayedInMinutes() > 0) {
             flightDateTimeView.setTextColor(getResources().getColor(android.R.color.holo_red_light, getActivity().getTheme()));
-            flightDateTimeView.setText(String.format("%s +%s minuten", flightDateTimeView.getText(), flight.getDelayedInMinutes()));
+            flightDateTimeView.setText(String.format("%s +%s %s", flightDateTimeView.getText(), flight.getDelayedInMinutes(), getString(R.string.minutes)));
         }
 
         // Gate text red on gate change
@@ -137,7 +137,7 @@ public class FlightDetailFragment extends Fragment {
                             flightDestinationView.setText(String.format("%s, %s, %s", destination.getDutchName(), destination.getCity(), destination.getCountry())));
         }
 
-        if (!flight.getIcao().equals("Onbekend")) {
+        if (!flight.getIcao().equals("-")) {
             // Load human readable airline name
             viewModel.getAirline(flight.getIcao()).observe(this, airline -> flightAirlineView.setText(airline.getName()));
         }
@@ -162,12 +162,12 @@ public class FlightDetailFragment extends Fragment {
                 viewModel.removeFavoriteFlight(flight);
                 item.setIcon(R.drawable.ic_favorite_border);
 
-                Toast.makeText(getContext(), "Vlucht " + flight.getName() + " verwijderd als favoriet", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), String.format(getString(R.string.flight_deleted_from_favorites), flight.getName()), Toast.LENGTH_SHORT).show();
             } else {
                 viewModel.addFavoriteFlight(flight);
                 item.setIcon(R.drawable.ic_favorite);
 
-                Toast.makeText(getContext(), "Vlucht " + flight.getName() + " opgeslagen als favoriet", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), String.format(getString(R.string.flight_added_to_favorites), flight.getName()), Toast.LENGTH_SHORT).show();
             }
 
             return true;

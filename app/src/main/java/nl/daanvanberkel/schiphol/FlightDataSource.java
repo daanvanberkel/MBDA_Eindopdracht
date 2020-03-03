@@ -87,7 +87,7 @@ public class FlightDataSource extends PageKeyedDataSource<Integer, Flight> {
             callback.onResult(flights, adjacentPage);
         }, error -> {
             error.printStackTrace();
-            Toast.makeText(context, "Vluchten kunnen niet worden weergegeven zonder internetverbinding", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, context.getString(R.string.no_internet_error), Toast.LENGTH_LONG).show();
         });
 
         queue.add(jsonObjectRequest);

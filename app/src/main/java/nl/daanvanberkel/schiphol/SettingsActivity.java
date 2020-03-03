@@ -30,10 +30,10 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         if (key.equals("notifications")) {
             if (sharedPreferences.getBoolean(key, true)) {
                 JobServiceStarter.startFavoriteFlightJobService(this);
-                Toast.makeText(this, "Notificaties voor vluchten ingeschakeld", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.notifications_enabled), Toast.LENGTH_SHORT).show();
             } else {
                 JobServiceStarter.stopFavoriteFlightJobService(this);
-                Toast.makeText(this, "Notificaties voor vluchten uitgeschakeld", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.notifications_disabled), Toast.LENGTH_SHORT).show();
             }
         }
     }

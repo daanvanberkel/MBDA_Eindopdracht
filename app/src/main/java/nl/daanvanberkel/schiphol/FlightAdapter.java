@@ -80,7 +80,7 @@ public class FlightAdapter extends PagedListAdapter<Flight, FlightAdapter.Flight
             holder.flightDateTimeView.setText(currentFlight.getScheduleDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
         }
         holder.flightNameView.setText(currentFlight.getName());
-        holder.flightStateView.setText(FlightParser.parseState(currentFlight.getFirstFlightState()));
+        holder.flightStateView.setText(FlightParser.parseState(currentFlight.getFirstFlightState(), holder.flightStateView.getContext()));
         holder.flightGateView.setText(currentFlight.getGate());
     }
 

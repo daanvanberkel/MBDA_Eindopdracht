@@ -1,5 +1,7 @@
 package nl.daanvanberkel.schiphol.helpers;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -8,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.daanvanberkel.schiphol.R;
 import nl.daanvanberkel.schiphol.models.Flight;
 
 public class FlightParser {
@@ -35,7 +38,7 @@ public class FlightParser {
         if (!flightJson.isNull("prefixICAO")) {
             flight.setIcao(icao);
         } else {
-            flight.setIcao("Onbekend");
+            flight.setIcao("-");
         }
 
         // Set scheduleDateTime
@@ -152,40 +155,40 @@ public class FlightParser {
         return flights;
     }
 
-    public static String parseState(String state) {
+    public static String parseState(String state, Context context) {
         switch(state) {
             case "SCH":
-                return "Scheduled";
+                return context.getString(R.string.scheduled);
             case "DEL":
-                return "Delayed";
+                return context.getString(R.string.delayed);
             case "WIL":
-                return "Wait in lounge";
+                return context.getString(R.string.wait_in_lounge);
             case "GTO":
-                return "Gate open";
+                return context.getString(R.string.gate_open);
             case "BRD":
-                return "Boarding";
+                return context.getString(R.string.boarding);
             case "GCL":
-                return "Gate closing";
+                return context.getString(R.string.gate_closing);
             case "GTD":
-                return "Gate closed";
+                return context.getString(R.string.gate_closed);
             case "DEP":
-                return "Departed";
+                return context.getString(R.string.departed);
             case "CNX":
-                return "Cancelled";
+                return context.getString(R.string.cancelled);
             case "GCH":
-                return "Gate change";
+                return context.getString(R.string.gate_change);
             case "TOM":
-                return "Tomorrow";
+                return context.getString(R.string.tomorrow);
             default:
-                return "State unknown - " + state;
+                return String.format(context.getString(R.string.state_unknown), state);
         }
     }
 
-    public static String[] parseStates(String[] states) {
+    public static String[] parseStates(String[] states, Context context) {
         String[] output = new String[states.length];
 
         for (int i = 0; i < states.length; i++) {
-            output[i] = parseState(states[i]);
+            output[i] = parseState(states[i], context);
         }
 
         return output;

@@ -16,6 +16,7 @@ import androidx.paging.PagedList;
 
 import java.util.ArrayList;
 
+import nl.daanvanberkel.schiphol.R;
 import nl.daanvanberkel.schiphol.models.Flight;
 import nl.daanvanberkel.schiphol.FlightDataSourceFactory;
 
@@ -96,7 +97,7 @@ public class FlightListViewModel extends AndroidViewModel {
             ContentProviderResult[] res = getApplication().getApplicationContext().getContentResolver().applyBatch(ContactsContract.AUTHORITY, operations);
         } catch (RemoteException| OperationApplicationException e) {
             e.printStackTrace();
-            Toast.makeText(getApplication().getApplicationContext(), "Er is een fout opgetreden tijdens het opslaan van schiphol in uw contacten. Probeer het later nog eens.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplication().getApplicationContext(), getApplication().getApplicationContext().getString(R.string.adding_contact_error), Toast.LENGTH_LONG).show();
         }
     }
 }

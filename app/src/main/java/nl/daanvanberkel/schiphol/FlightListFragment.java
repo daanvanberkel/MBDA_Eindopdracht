@@ -104,7 +104,7 @@ public class FlightListFragment extends Fragment {
             }
 
             viewModel.addToContacts();
-            Toast.makeText(getContext(), "Schiphol is toegevoegd aan uw contacten", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.added_to_contact), Toast.LENGTH_SHORT).show();
 
             return true;
         });
@@ -118,9 +118,9 @@ public class FlightListFragment extends Fragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 viewModel.addToContacts();
 
-                Toast.makeText(getContext(), "Schiphol is toegevoegd aan uw contacten", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.added_to_contact), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "De app heeft geen toegang tot uw contacten", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.no_contact_permission), Toast.LENGTH_SHORT).show();
             }
         }
     }
